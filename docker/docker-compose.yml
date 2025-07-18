@@ -1,6 +1,6 @@
 services:
   mongodb:
-    image: mongo:7-jammy
+    image: mongo:latest
     
     container_name: mongodb
     
@@ -8,7 +8,11 @@ services:
       - "27111:27017"
     
     volumes:
-      - ./mongodb:/data/db
+      - mongodata:/data/db
+    
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     
     networks:
       - backend
@@ -17,3 +21,6 @@ services:
 
 networks:
   backend:
+
+volumes:
+  mongodata:
