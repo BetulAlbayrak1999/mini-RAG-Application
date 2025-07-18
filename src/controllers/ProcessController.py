@@ -4,7 +4,7 @@ import os
 from langchain_community.document_loaders import TextLoader
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from models import ProcessingEnums
+from models.enums import ProcessingEnums
 
 
 class ProcessController(BaseController):
@@ -23,6 +23,9 @@ class ProcessController(BaseController):
         file_extension = self.get_file_extension(file_id=file_id)
         file_path = os.path.join(self.project_path, file_id)
 
+        if not os.path.exists(file_path):
+            return None
+        
         if file_extension == ProcessingEnums.TXT.value:
             return TextLoader(file_path, encoding="utf-8")
 
@@ -34,7 +37,10 @@ class ProcessController(BaseController):
     def get_file_content(self, file_id: str):
 
         loader = self.get_file_loader(file_id=file_id)
-        return loader.load()
+        if loader:
+            return loader.load()
+        
+        return None
 
     def process_file_content(
         self,
