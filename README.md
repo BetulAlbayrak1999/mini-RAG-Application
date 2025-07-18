@@ -44,6 +44,34 @@ $ cp .env.example .env
 
 Set your environment variables in the `.env` file. Like `OPENAI_API_KEY` value.
 
+## Run Docker Compose Services
+
+```bash
+$ cd docker
+$ cp .env.example .env
+```
+
+- update `.env` with your credentials
+
+```bash
+$ cd docker
+$ sudo docker compose up -d
+```
+
+## To Clean the docker environment and restart it use this command
+
+```bash
+$ docker-compose down --volumes --remove-orphans && docker-compose up --build -d
+
+```
+## Activate conda environment
+
+```bash
+$ conda activate /home/omen/miniconda3/envs/mini-rag-application
+
+```
+
+
 ## Run the FastAPI server
 
 ```bash
