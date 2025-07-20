@@ -9,3 +9,5 @@ PyMuPDF==1.24.3
 motor==3.5.1
 pydantic-mongo==2.3.0
 pymongo==4.6.3
+openai==1.35.13
+cohere==5.5.8
