@@ -1,10 +1,9 @@
-from .BaseController import BaseController
-from .ProjectController import ProjectController
+from  controllers.BaseController import BaseController
+from controllers.ProjectController import ProjectController
 from fastapi import UploadFile
 from models.enums import ResponseSignal
 import re
 import os
-
 
 class DataController(BaseController):
 
@@ -22,12 +21,12 @@ class DataController(BaseController):
 
         return True, ResponseSignal.FILE_VALIDATED_SUCCESS.value
 
-    def generate_unique_filepath(self, original_file_name: str, project_id: str):
+    def generate_unique_filepath(self, orig_file_name: str, project_id: str):
         random_key = self.generate_random_string()
         project_path = ProjectController().get_project_path(project_id=project_id)
 
         cleaned_file_name = self.get_cleaned_file_name(
-            original_file_name=original_file_name
+            orig_file_name=orig_file_name
         )
 
         new_file_path = os.path.join(
@@ -42,10 +41,10 @@ class DataController(BaseController):
 
         return new_file_path, random_key + "_" + cleaned_file_name
 
-    def get_cleaned_file_name(self, original_file_name: str):
+    def get_cleaned_file_name(self, orig_file_name: str):
 
         # remove any special characters, except underscore and .
-        cleaned_file_name = re.sub(r"[^\w.]", "", original_file_name.strip())
+        cleaned_file_name = re.sub(r"[^\w.]", "", orig_file_name.strip())
 
         # replace spaces with underscores
         cleaned_file_name = cleaned_file_name.replace(" ", "_")

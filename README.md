@@ -4,7 +4,7 @@ This is a minimal implementation of the RAG model for question aswering.
 
 ## Requirements
 
-- Python 3.8 or later
+- Python 3.9 or later
 
 ### Install Python using MiniConda
 
@@ -81,3 +81,4 @@ $ uvicorn main:app --reload --host 0.0.0.0 --port 5000
 ## POSTMAN Collection
 
 Download the POSTMAN collection from [/assets/mini-rag-application.postman_collection.json](/assets/mini-rag-application.postman_collection.json)
+
