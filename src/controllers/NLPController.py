@@ -1,4 +1,4 @@
-from .BaseController import BaseController
+from controllers.BaseController import BaseController
 from models.db_schemes import Project, DataChunk
 from stores.llm import DocumentTypeEnum
 from typing import List
@@ -39,6 +39,7 @@ class NLPController(BaseController):
         chunks_ids: List[int],
         do_reset: bool = False,
     ):
+
         # step1: get collection name
         collection_name = self.create_collection_name(project_id=project.project_id)
 
@@ -52,10 +53,7 @@ class NLPController(BaseController):
             for text in texts
         ]
 
-        if not vectors or len(vectors) == 0:
-            return False
-
-        # step3: create collection if not exist
+        # step3: create collection if not exists
         _ = self.vectordb_client.create_collection(
             collection_name=collection_name,
             embedding_size=self.embedding_client.embedding_size,
@@ -70,9 +68,11 @@ class NLPController(BaseController):
             vectors=vectors,
             record_ids=chunks_ids,
         )
+
         return True
 
-    def search_vector_db_colletion(self, project: Project, text: str, limit: int = 10):
+    def search_vector_db_collection(self, project: Project, text: str, limit: int = 10):
+
         # step1: get collection name
         collection_name = self.create_collection_name(project_id=project.project_id)
 
@@ -88,6 +88,7 @@ class NLPController(BaseController):
         results = self.vectordb_client.search_by_vector(
             collection_name=collection_name, vector=vector, limit=limit
         )
+
         if not results:
             return False
 
@@ -95,17 +96,19 @@ class NLPController(BaseController):
 
     def answer_rag_question(self, project: Project, query: str, limit: int = 10):
 
-        asnwer, full_prompt, chat_history = None, None, None
+        answer, full_prompt, chat_history = None, None, None
 
-        # step 1: retrieve related documents
-        retrieved_documents = self.search_vector_db_colletion(
-            project=project, text=query, limit=limit
+        # step1: retrieve related documents
+        retrieved_documents = self.search_vector_db_collection(
+            project=project,
+            text=query,
+            limit=limit,
         )
 
         if not retrieved_documents or len(retrieved_documents) == 0:
-            return asnwer, full_prompt, chat_history
+            return answer, full_prompt, chat_history
 
-        # step 2: construct LLM prompt
+        # step2: Construct LLM prompt
         system_prompt = self.template_parser.get("rag", "system_prompt")
 
         documents_prompts = "\n".join(
@@ -115,16 +118,18 @@ class NLPController(BaseController):
                     "document_prompt",
                     {
                         "doc_num": idx + 1,
-                        "chunk_text": doc.text,
+                        "chunk_text": self.generation_client.process_text(doc.text),
                     },
                 )
                 for idx, doc in enumerate(retrieved_documents)
             ]
         )
 
-        footer_prompt = self.template_parser.get("rag", "footer_prompt")
+        footer_prompt = self.template_parser.get(
+            "rag", "footer_prompt", {"query": query}
+        )
 
-        # step 3: construct generation client prompts
+        # step3: Construct Generation Client Prompts
         chat_history = [
             self.generation_client.construct_prompt(
                 prompt=system_prompt,
@@ -134,7 +139,7 @@ class NLPController(BaseController):
 
         full_prompt = "\n\n".join([documents_prompts, footer_prompt])
 
-        # step 4: retrieve the answer
+        # step4: Retrieve the Answer
         answer = self.generation_client.generate_text(
             prompt=full_prompt, chat_history=chat_history
         )
