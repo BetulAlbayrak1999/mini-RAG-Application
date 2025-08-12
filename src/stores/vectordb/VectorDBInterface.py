@@ -18,7 +18,7 @@ class VectorDBInterface(ABC):
         pass
 
     @abstractmethod
-    def list_all_collection(self) -> List:
+    def list_all_collections(self) -> List:
         pass
 
     @abstractmethod
