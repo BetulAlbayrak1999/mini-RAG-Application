@@ -3,7 +3,6 @@ from ..LLMInterface import LLMInterface
 from openai import OpenAI
 import logging
 
-
 class OpenAIProvider(LLMInterface):
 
     def __init__(
@@ -14,8 +13,10 @@ class OpenAIProvider(LLMInterface):
         default_generation_max_output_tokens: int = 1000,
         default_generation_temperature: float = 0.1,
     ):
+
         self.api_key = api_key
         self.api_url = api_url
+
         self.default_input_max_characters = default_input_max_characters
         self.default_generation_max_output_tokens = default_generation_max_output_tokens
         self.default_generation_temperature = default_generation_temperature
@@ -24,10 +25,11 @@ class OpenAIProvider(LLMInterface):
 
         self.embedding_model_id = None
         self.embedding_size = None
-
+       
+       
         self.client = OpenAI(
-            api_key=self.api_key,
-            base_url=self.api_url if self.api_url and len(self.api_url) else None,
+        api_key=self.api_key,
+        base_url=self.api_url if self.api_url and len(self.api_url) else None,
         )
 
         self.enums = OpenAIEnums
@@ -50,8 +52,9 @@ class OpenAIProvider(LLMInterface):
         max_output_tokens: int = None,
         temperature: float = None,
     ):
+
         if not self.client:
-            self.logger.error("OpenAI cleint was not set")
+            self.logger.error("OpenAI client was not set")
             return None
 
         if not self.generation_model_id:
@@ -90,6 +93,7 @@ class OpenAIProvider(LLMInterface):
         return response.choices[0].message.content
 
     def embed_text(self, text: str, document_type: str = None):
+
         if not self.client:
             self.logger.error("OpenAI client was not set")
             return None
@@ -99,7 +103,8 @@ class OpenAIProvider(LLMInterface):
             return None
 
         response = self.client.embeddings.create(
-            model=self.embedding_model_id, input=text
+            model=self.embedding_model_id,
+            input=text,
         )
 
         if (
@@ -108,10 +113,10 @@ class OpenAIProvider(LLMInterface):
             or len(response.data) == 0
             or not response.data[0].embedding
         ):
-            self.logger.error("Error while emgedding text with OpenAI")
+            self.logger.error("Error while embedding text with OpenAI")
             return None
 
         return response.data[0].embedding
 
     def construct_prompt(self, prompt: str, role: str):
-        return {"role": role, "content": self.process_text(prompt)}
+        return {"role": role, "content": prompt}
