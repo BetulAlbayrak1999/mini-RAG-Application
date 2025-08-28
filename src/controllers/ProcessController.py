@@ -5,6 +5,14 @@ from langchain_community.document_loaders import TextLoader
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from models.enums import ProcessingEnums
+from typing import List
+from dataclasses import dataclass
+
+
+@dataclass
+class Document:
+    page_content: str
+    metadata: dict
 
 
 class ProcessController(BaseController):
@@ -25,7 +33,7 @@ class ProcessController(BaseController):
 
         if not os.path.exists(file_path):
             return None
-        
+
         if file_extension == ProcessingEnums.TXT.value:
             return TextLoader(file_path, encoding="utf-8")
 
@@ -39,7 +47,7 @@ class ProcessController(BaseController):
         loader = self.get_file_loader(file_id=file_id)
         if loader:
             return loader.load()
-        
+
         return None
 
     def process_file_content(
@@ -49,16 +57,43 @@ class ProcessController(BaseController):
         chunk_size: int = 100,
         overlap_size: int = 20,
     ):
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=chunk_size, chunk_overlap=overlap_size, length_function=len
-        )
 
-        file_content_text = [rec.page_content for rec in file_content]
+        file_content_texts = [rec.page_content for rec in file_content]
 
         file_content_metadata = [rec.metadata for rec in file_content]
 
-        chunks = text_splitter.create_documents(
-            file_content_text, metadatas=file_content_metadata
+        chunks= self.process_simpler_splitter(
+            texts=file_content_texts,
+            metadatas=file_content_metadata,
+            chunk_size=chunk_size
         )
+        
+        return chunks
+
+    def process_simpler_splitter(
+        self,
+        texts: List[str],
+        metadatas: List[dict],
+        chunk_size: int,
+        splitter_tag: str = "\n",
+    ):
+
+        full_text = " ".join(texts)
+        # split by splitter_tag
+        lines = [
+            doc.strip() for doc in full_text.split(splitter_tag) if len(doc.strip()) > 1
+        ]
+
+        chunks = []
+        current_chunk = ""
+
+        for line in lines:
+            current_chunk += line + splitter_tag
+            if len(current_chunk) >= chunk_size:
+                chunks.append(Document(page_content=current_chunk.strip(), metadata={}))
+                current_chunk = ""
+
+        if len(current_chunk) >= 0:
+            chunks.append(Document(page_content=current_chunk.strip(), metadata={}))
 
         return chunks
