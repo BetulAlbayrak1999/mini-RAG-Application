@@ -13,7 +13,7 @@ This is a minimal implementation of the RAG model for question aswering.
 2. Create a new environment using the following command:
 
 ```bash
-$ conda create -n mini-rag-application python=3.8
+$ conda create -n mini-rag-application python=3.9
 ```
 
 3. Activate the environment:
@@ -75,7 +75,7 @@ $ conda activate /home/omen/miniconda3/envs/mini-rag-application
 ## Run the FastAPI server
 
 ```bash
-$ uvicorn main:app --reload --host 0.0.0.0 --port 5000
+$ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## POSTMAN Collection
